@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wizardry Map Maker</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <h1>Wizardry Map Maker</h1>
+    <div class="header-controls">
+      <div class="floor-selector">
+        <label for="floor-select">Floor:</label>
+        <select id="floor-select">
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+          <option value="7">7</option>
+          <option value="8">8</option>
+          <option value="9">9</option>
+          <option value="10">10</option>
+        </select>
+      </div>
+      <div class="header-buttons">
+        <button id="export-btn">Export</button>
+        <button id="import-btn">Import</button>
+        <button id="clear-floor-btn">Clear Floor</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <aside class="toolbar">
+      <div class="tool-section">
+        <h3>Tools</h3>
+        <div class="tool-group">
+          <button class="tool-btn" data-tool="wall">
+            <span class="icon">▢</span> Wall
+          </button>
+          <button class="tool-btn" data-tool="door" data-door-type="normal">
+            <span class="icon">▯</span> Door
+          </button>
+          <button class="tool-btn" data-tool="door" data-door-type="locked">
+            <span class="icon">▯</span> Locked Door
+          </button>
+          <button class="tool-btn" data-tool="door" data-door-type="secret">
+            <span class="icon">▯</span> Secret Door
+          </button>
+          <button class="tool-btn" data-tool="door" data-door-type="one-way">
+            <span class="icon">▯</span> One-Way Door
+          </button>
+        </div>
+      </div>
+
+      <div class="tool-section">
+        <h3>Features</h3>
+        <div class="tool-group">
+          <button class="tool-btn" data-tool="content" data-content="stairs-up">
+            <span class="icon">↑</span> Stairs Up
+          </button>
+          <button class="tool-btn" data-tool="content" data-content="stairs-down">
+            <span class="icon">↓</span> Stairs Down
+          </button>
+          <button class="tool-btn" data-tool="content" data-content="teleporter">
+            <span class="icon">◎</span> Teleporter
+          </button>
+          <button class="tool-btn" data-tool="content" data-content="spinner">
+            <span class="icon">⟳</span> Spinner
+          </button>
+          <button class="tool-btn" data-tool="content" data-content="pit">
+            <span class="icon">○</span> Pit
+          </button>
+          <button class="tool-btn" data-tool="content" data-content="chute">
+            <span class="icon">⇓</span> Chute
+          </button>
+          <button class="tool-btn" data-tool="content" data-content="elevator">
+            <span class="icon">⬍</span> Elevator
+          </button>
+          <button class="tool-btn" data-tool="content" data-content="darkness">
+            <span class="icon">▪</span> Darkness
+          </button>
+          <button class="tool-btn" data-tool="content" data-content="antimagic">
+            <span class="icon">✕</span> Anti-Magic
+          </button>
+          <button class="tool-btn" data-tool="content" data-content="encounter">
+            <span class="icon">!</span> Encounter
+          </button>
+        </div>
+      </div>
+
+      <div class="tool-section">
+        <h3>Other</h3>
+        <div class="tool-group">
+          <button class="tool-btn" data-tool="player">
+            <span class="icon">▲</span> Player
+          </button>
+          <button class="tool-btn" data-tool="note">
+            <span class="icon">✎</span> Note
+          </button>
+          <button class="tool-btn" data-tool="erase">
+            <span class="icon">✗</span> Erase
+          </button>
+        </div>
+      </div>
+
+      <div class="tool-section">
+        <h3>Legend</h3>
+        <div class="legend">
+          <div class="legend-item">
+            <span class="legend-swatch" style="background: var(--wall-color)"></span>
+            <span>Wall</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-swatch" style="background: var(--door-color)"></span>
+            <span>Door</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-swatch" style="background: #ff4444"></span>
+            <span>Locked</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-swatch" style="background: #666; border: 1px dashed #999"></span>
+            <span>Secret</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-swatch" style="background: var(--stairs-up)">↑</span>
+            <span>Stairs Up</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-swatch" style="background: var(--stairs-down)">↓</span>
+            <span>Stairs Down</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-swatch" style="background: var(--darkness)"></span>
+            <span>Darkness</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-swatch" style="background: var(--antimagic)"></span>
+            <span>Anti-Magic</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="tool-section shortcuts">
+        <h3>Shortcuts</h3>
+        <div><kbd>Arrow</kbd> Move player</div>
+        <div><kbd>W/A/S/D</kbd> Toggle walls</div>
+        <div><kbd>1-9, 0</kbd> Switch floors</div>
+        <div><kbd>E</kbd> Erase mode</div>
+        <div><kbd>R</kbd> Rotate player</div>
+        <div><kbd>Shift+R</kbd> Rotate map</div>
+        <div><kbd>Z</kbd> Undo</div>
+        <div><kbd>Shift+Z</kbd> Redo</div>
+        <div><kbd>Esc</kbd> Wall tool</div>
+      </div>
+    </aside>
+
+    <section class="map-container">
+      <div class="map-header">
+        <div id="map-info" class="map-info">Floor 1 | Player: (0, 0) facing N</div>
+        <div id="compass" class="compass">
+          <span class="compass-label">Up=</span>
+          <span id="compass-direction" class="compass-direction">N</span>
+        </div>
+      </div>
+      <div class="map-with-coords">
+        <div class="coord-row">
+          <div class="coord-corner"></div>
+          <div class="coord-labels-x">
+            <span>0</span><span>1</span><span>2</span><span>3</span><span>4</span>
+            <span>5</span><span>6</span><span>7</span><span>8</span><span>9</span>
+            <span>10</span><span>11</span><span>12</span><span>13</span><span>14</span>
+            <span>15</span><span>16</span><span>17</span><span>18</span><span>19</span>
+          </div>
+          <div class="coord-corner"></div>
+        </div>
+        <div class="map-row">
+          <div class="coord-labels-y">
+            <span>19</span><span>18</span><span>17</span><span>16</span><span>15</span>
+            <span>14</span><span>13</span><span>12</span><span>11</span><span>10</span>
+            <span>9</span><span>8</span><span>7</span><span>6</span><span>5</span>
+            <span>4</span><span>3</span><span>2</span><span>1</span><span>0</span>
+          </div>
+          <div id="map-grid" class="map-grid"></div>
+          <div class="coord-labels-y">
+            <span>19</span><span>18</span><span>17</span><span>16</span><span>15</span>
+            <span>14</span><span>13</span><span>12</span><span>11</span><span>10</span>
+            <span>9</span><span>8</span><span>7</span><span>6</span><span>5</span>
+            <span>4</span><span>3</span><span>2</span><span>1</span><span>0</span>
+          </div>
+        </div>
+        <div class="coord-row">
+          <div class="coord-corner"></div>
+          <div class="coord-labels-x">
+            <span>0</span><span>1</span><span>2</span><span>3</span><span>4</span>
+            <span>5</span><span>6</span><span>7</span><span>8</span><span>9</span>
+            <span>10</span><span>11</span><span>12</span><span>13</span><span>14</span>
+            <span>15</span><span>16</span><span>17</span><span>18</span><span>19</span>
+          </div>
+          <div class="coord-corner"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Import Modal -->
+  <div id="import-modal" class="modal-overlay">
+    <div class="modal">
+      <h2>Import Map Data</h2>
+      <textarea id="import-data" placeholder="Paste JSON map data here..."></textarea>
+      <div class="modal-buttons">
+        <button id="import-cancel" class="secondary">Cancel</button>
+        <button id="import-confirm" class="primary">Import</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Note Modal -->
+  <div id="note-modal" class="modal-overlay">
+    <div class="modal">
+      <h2>Cell Note</h2>
+      <input type="text" id="note-input" class="note-input" placeholder="Enter note for this cell...">
+      <div class="modal-buttons">
+        <button id="note-cancel" class="secondary">Cancel</button>
+        <button id="note-save" class="primary">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="map-data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
