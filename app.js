@@ -75,16 +75,25 @@ function initToolbar() {
   // Tool buttons
   document.querySelectorAll('.tool-btn[data-tool]').forEach(btn => {
     btn.addEventListener('click', () => {
+      const wasActive = btn.classList.contains('active');
       document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      currentTool = btn.dataset.tool;
 
-      // Handle sub-tool selection
-      if (btn.dataset.doorType) {
-        currentDoorType = btn.dataset.doorType;
-      }
-      if (btn.dataset.content) {
-        currentContent = btn.dataset.content;
+      // Toggle off if clicking same button, otherwise activate
+      if (wasActive) {
+        // Return to wall tool as default
+        currentTool = 'wall';
+        document.querySelector('.tool-btn[data-tool="wall"]').classList.add('active');
+      } else {
+        btn.classList.add('active');
+        currentTool = btn.dataset.tool;
+
+        // Handle sub-tool selection
+        if (btn.dataset.doorType) {
+          currentDoorType = btn.dataset.doorType;
+        }
+        if (btn.dataset.content) {
+          currentContent = btn.dataset.content;
+        }
       }
     });
   });

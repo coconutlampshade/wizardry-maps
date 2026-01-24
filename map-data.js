@@ -172,8 +172,20 @@ class MapData {
   save() {
     try {
       localStorage.setItem('wizardry-maps', JSON.stringify(this.data));
+      this.showSaveIndicator();
     } catch (e) {
       console.error('Failed to save map data:', e);
+    }
+  }
+
+  showSaveIndicator() {
+    const indicator = document.getElementById('save-indicator');
+    if (indicator) {
+      indicator.classList.add('visible');
+      clearTimeout(this.saveIndicatorTimeout);
+      this.saveIndicatorTimeout = setTimeout(() => {
+        indicator.classList.remove('visible');
+      }, 1500);
     }
   }
 
