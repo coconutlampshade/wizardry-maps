@@ -305,39 +305,34 @@ main {
   width: 3px;
 }
 
-/* Doors - centered with white wall lines on sides */
+/* Doors - red segment aligned with wall */
 .door {
   position: absolute;
   z-index: 11;
-  box-sizing: border-box;
 }
 
 .door-n, .door-s {
   left: 50%;
   transform: translateX(-50%);
-  width: 14px;
+  width: 10px;
   height: 3px;
-  border-left: 3px solid var(--wall-color);
-  border-right: 3px solid var(--wall-color);
 }
 
-.door-n { top: -1px; }
-.door-s { bottom: -1px; }
+.door-n { top: -2px; }
+.door-s { bottom: -2px; }
 
 .door-e, .door-w {
   top: 50%;
   transform: translateY(-50%);
   width: 3px;
-  height: 14px;
-  border-top: 3px solid var(--wall-color);
-  border-bottom: 3px solid var(--wall-color);
+  height: 10px;
 }
 
-.door-e { right: -1px; }
-.door-w { left: -1px; }
+.door-e { right: -2px; }
+.door-w { left: -2px; }
 
-.door.normal { background: #c44; }
-.door.locked { background: #ff2222; }
+.door.normal { background: #ff0000; }
+.door.locked { background: #ff0000; }
 .door.secret { background: #888; }
 .door.one-way { background: #aa44dd; }
 
