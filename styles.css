@@ -24,6 +24,24 @@
   --stairs-down: #ff6347;
 }
 
+body.light-mode {
+  --bg-dark: #f0f0f0;
+  --bg-medium: #e0e0e0;
+  --bg-light: #d0d0d0;
+  --accent: #c41e3a;
+  --text: #222;
+  --text-dim: #666;
+  --wall-color: #000;
+  --grid-line: #bbb;
+  --cell-empty: #f5f5f5;
+  --cell-explored: #e8e8e8;
+  --player-color: #228b22;
+}
+
+:root {
+  --player-color: #0f0;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -258,6 +276,7 @@ main {
 .cell.encounter { background: var(--encounter); }
 .cell.stairs-up { background: var(--stairs-up); }
 .cell.stairs-down { background: var(--stairs-down); }
+.cell.inaccessible { background: #444; }
 
 /* Cell Content Icons */
 .cell-content {
@@ -389,16 +408,56 @@ main {
   background: rgba(255, 255, 255, 0.1);
 }
 
-/* Player Marker */
+/* Player Marker - arrow shape with tail */
 .player-marker {
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 16px;
+  width: 10px;
+  height: 18px;
   z-index: 25;
   pointer-events: none;
-  text-shadow: 0 0 3px #000;
+}
+
+/* Arrow head (triangle) */
+.player-marker::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 10px solid var(--player-color);
+}
+
+/* Arrow tail */
+.player-marker::after {
+  content: '';
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 3px;
+  height: 10px;
+  background: var(--player-color);
+}
+
+.player-marker[data-facing="N"] {
+  transform: translate(-50%, -50%) rotate(0deg);
+}
+
+.player-marker[data-facing="E"] {
+  transform: translate(-50%, -50%) rotate(90deg);
+}
+
+.player-marker[data-facing="S"] {
+  transform: translate(-50%, -50%) rotate(180deg);
+}
+
+.player-marker[data-facing="W"] {
+  transform: translate(-50%, -50%) rotate(270deg);
 }
 
 /* Note Indicator */
@@ -440,6 +499,8 @@ main {
 .coord-labels-x span {
   width: 29px; /* 28px cell + 1px gap */
   text-align: center;
+  display: inline-block;
+  transition: transform 0.3s ease;
 }
 
 .map-row {
@@ -461,6 +522,7 @@ main {
   align-items: center;
   justify-content: center;
   width: 16px;
+  transition: transform 0.3s ease;
 }
 
 /* Modal */

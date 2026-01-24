@@ -8,7 +8,7 @@ const mapData = new MapData();
 let currentTool = 'wall';
 let currentDoorType = 'normal';
 let currentContent = 'stairs-up';
-let viewRotation = 0; // 0, 90, 180, 270 degrees
+let viewRotation = 0; // Cumulative rotation in degrees (keeps increasing)
 
 // Content type definitions
 const contentTypes = {
@@ -21,7 +21,8 @@ const contentTypes = {
   'elevator': { icon: '⬍', label: 'Elevator' },
   'darkness': { icon: '▪', label: 'Darkness' },
   'antimagic': { icon: '✕', label: 'Anti-magic' },
-  'encounter': { icon: '!', label: 'Encounter' }
+  'encounter': { icon: '!', label: 'Encounter' },
+  'inaccessible': { icon: '', label: 'Inaccessible' }
 };
 
 // Player facing arrows
@@ -39,8 +40,26 @@ document.addEventListener('DOMContentLoaded', () => {
   initGrid();
   initModals();
   initKeyboardShortcuts();
+  initThemeToggle();
   renderGrid();
 });
+
+function initThemeToggle() {
+  const btn = document.getElementById('theme-btn');
+  const savedTheme = localStorage.getItem('wizardry-maps-theme');
+
+  if (savedTheme === 'light') {
+    document.body.classList.add('light-mode');
+    btn.textContent = 'Dark';
+  }
+
+  btn.addEventListener('click', () => {
+    document.body.classList.toggle('light-mode');
+    const isLight = document.body.classList.contains('light-mode');
+    btn.textContent = isLight ? 'Dark' : 'Light';
+    localStorage.setItem('wizardry-maps-theme', isLight ? 'light' : 'dark');
+  });
+}
 
 function initFloorSelector() {
   const selector = document.getElementById('floor-select');
@@ -153,17 +172,20 @@ function handleCenterClick(e, x, y) {
   e.stopPropagation();
   const floor = mapData.data.currentFloor;
   const cell = mapData.getCell(floor, x, y);
+  const pos = mapData.data.playerPosition;
 
+  // Always move player to clicked cell
+  if (pos.x !== x || pos.y !== y) {
+    mapData.setPlayerPosition(x, y, pos.facing);
+  }
+
+  // Additional actions based on tool
   if (currentTool === 'player') {
-    // Place or rotate player
-    const pos = mapData.data.playerPosition;
+    // Rotate facing if clicking same cell
     if (pos.x === x && pos.y === y) {
-      // Rotate facing
       const dirs = ['N', 'E', 'S', 'W'];
       const nextDir = dirs[(dirs.indexOf(pos.facing) + 1) % 4];
       mapData.setPlayerPosition(x, y, nextDir);
-    } else {
-      mapData.setPlayerPosition(x, y, 'N');
     }
   } else if (currentTool === 'note') {
     showNoteModal(x, y);
@@ -245,7 +267,7 @@ function renderGrid() {
     if (pos.x === x && pos.y === y) {
       const player = document.createElement('div');
       player.className = 'player-marker';
-      player.textContent = facingArrows[pos.facing];
+      player.dataset.facing = pos.facing;
       cellEl.appendChild(player);
     }
   });
@@ -263,11 +285,18 @@ function applyViewRotation() {
   const mapWithCoords = document.querySelector('.map-with-coords');
   mapWithCoords.style.transform = `rotate(${viewRotation}deg)`;
 
-  // Update compass
-  const compassDirections = ['N', 'W', 'S', 'E']; // What's "up" at each rotation
-  const compassIndex = viewRotation / 90;
+  // Update compass - use modulo to get the correct direction
+  // Clockwise: 0°=N, 90°=W, 180°=S, 270°=E
+  const compassDirections = ['N', 'W', 'S', 'E'];
+  const normalizedRotation = ((viewRotation % 360) + 360) % 360;
+  const compassIndex = (normalizedRotation / 90) % 4;
   document.getElementById('compass-direction').textContent = compassDirections[compassIndex];
-  document.getElementById('compass').style.transform = `rotate(-${viewRotation}deg)`;
+
+  // Counter-rotate text labels so they stay readable
+  const counterRotation = -viewRotation;
+  document.querySelectorAll('.coord-labels-x span, .coord-labels-y span').forEach(span => {
+    span.style.transform = `rotate(${counterRotation}deg)`;
+  });
 }
 
 function initModals() {
@@ -370,7 +399,8 @@ function initKeyboardShortcuts() {
         270: { ArrowUp: 'E', ArrowRight: 'S', ArrowDown: 'W', ArrowLeft: 'N' }
       };
 
-      const direction = directionMap[viewRotation][e.key];
+      const normalizedRotation = ((viewRotation % 360) + 360) % 360;
+      const direction = directionMap[normalizedRotation][e.key];
 
       switch (direction) {
         case 'N':
@@ -402,7 +432,8 @@ function initKeyboardShortcuts() {
         180: { 'w': 's', 'd': 'w', 's': 'n', 'a': 'e' },
         270: { 'w': 'e', 'd': 's', 's': 'w', 'a': 'n' }
       };
-      const edge = edgeMap[viewRotation][e.key.toLowerCase()];
+      const normalizedRotation = ((viewRotation % 360) + 360) % 360;
+      const edge = edgeMap[normalizedRotation][e.key.toLowerCase()];
       const cell = mapData.getCell(floor, pos.x, pos.y);
       mapData.setWall(floor, pos.x, pos.y, edge, !cell.walls[edge]);
       renderGrid();
@@ -430,7 +461,7 @@ function initKeyboardShortcuts() {
     // Shift+R: rotate map view 90 degrees clockwise
     if (e.key.toLowerCase() === 'r' && !e.ctrlKey && !e.metaKey) {
       if (e.shiftKey) {
-        viewRotation = (viewRotation + 90) % 360;
+        viewRotation = viewRotation + 90;
         applyViewRotation();
       } else {
         const dirs = ['N', 'E', 'S', 'W'];
@@ -438,6 +469,13 @@ function initKeyboardShortcuts() {
         mapData.setPlayerPosition(pos.x, pos.y, nextDir);
         renderGrid();
       }
+    }
+
+    // I: mark cell as inaccessible
+    if (e.key.toLowerCase() === 'i' && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
+      const cell = mapData.getCell(floor, pos.x, pos.y);
+      mapData.setContent(floor, pos.x, pos.y, cell.content === 'inaccessible' ? null : 'inaccessible');
+      renderGrid();
     }
 
     // Z: undo, Shift+Z: redo
