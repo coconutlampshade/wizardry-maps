@@ -5,7 +5,7 @@
 const mapData = new MapData();
 
 // Current tool state
-let currentTool = 'wall';
+let currentTool = null;
 let currentDoorType = 'normal';
 let currentContent = 'stairs-up';
 let viewRotation = 0; // Cumulative rotation in degrees (keeps increasing)
@@ -181,9 +181,8 @@ function initToolbar() {
 
       // Toggle off if clicking same button, otherwise activate
       if (wasActive) {
-        // Return to wall tool as default
-        currentTool = 'wall';
-        document.querySelector('.tool-btn[data-tool="wall"]').classList.add('active');
+        // Deselect - no tool active
+        currentTool = null;
       } else {
         btn.classList.add('active');
         currentTool = btn.dataset.tool;
@@ -199,8 +198,7 @@ function initToolbar() {
     });
   });
 
-  // Set initial active tool
-  document.querySelector('.tool-btn[data-tool="wall"]').classList.add('active');
+  // No tool selected by default
 
   // Save button - downloads file
   document.getElementById('save-btn').addEventListener('click', () => {
