@@ -111,6 +111,9 @@
           <button class="tool-btn" data-tool="teleporter">
             <span class="swatch swatch-icon" style="background: var(--teleporter)">T</span> Teleporter
           </button>
+          <button class="tool-btn" data-tool="passthrough">
+            <span class="swatch swatch-icon" style="background: var(--passthrough)">P</span> Pass-Through
+          </button>
         </div>
       </div>
 
@@ -246,6 +249,19 @@
     </div>
   </div>
 
+  <!-- Pass-Through Modal -->
+  <div id="passthrough-modal" class="modal-overlay">
+    <div class="modal">
+      <h2>Pass-Through Door</h2>
+      <p class="modal-hint">Enter letter for source (e.g., "A") or letter with apostrophe for destination (e.g., "A'")</p>
+      <input type="text" id="passthrough-input" class="note-input" placeholder="e.g., A or A'">
+      <div class="modal-buttons">
+        <button id="passthrough-cancel" class="secondary">Cancel</button>
+        <button id="passthrough-save" class="primary">Save</button>
+      </div>
+    </div>
+  </div>
+
   <!-- User Guide Panel -->
   <div id="guide-overlay" class="guide-overlay"></div>
   <aside id="user-guide" class="guide-panel">
@@ -321,6 +337,8 @@
           <span class="legend-item"><em>X</em> Anti-Magic</span>
           <span class="legend-item"><em>1</em> Teleporter source</span>
           <span class="legend-item"><em>1'</em> Teleporter dest</span>
+          <span class="legend-item"><em>A</em> Pass-through source</span>
+          <span class="legend-item"><em>A'</em> Pass-through dest</span>
         </div>
       </section>
     </div>

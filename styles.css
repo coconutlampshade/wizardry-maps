@@ -22,6 +22,7 @@
   --encounter: #ff69b4;
   --stairs-up: #32cd32;
   --stairs-down: #ff6347;
+  --passthrough: #cc0000;
 }
 
 body.light-mode {
@@ -519,6 +520,7 @@ main {
 .cell.stairs-up { background: var(--stairs-up); }
 .cell.stairs-down { background: var(--stairs-down); }
 .cell.teleporter { background: var(--teleporter); }
+.cell.passthrough { background: var(--passthrough); }
 .cell.inaccessible { background: #444; }
 .cell.explored { background: #3a5a3a; }
 

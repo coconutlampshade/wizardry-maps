@@ -73,7 +73,8 @@ class MapData {
         door: null,
         content: null,
         note: '',
-        teleporterId: null
+        teleporterId: null,
+        passthroughId: null
       };
     }
 
@@ -143,6 +144,12 @@ class MapData {
   setTeleporterId(floor, x, y, teleporterId) {
     const cell = this.getCell(floor, x, y);
     cell.teleporterId = teleporterId;
+    this.save();
+  }
+
+  setPassthroughId(floor, x, y, passthroughId) {
+    const cell = this.getCell(floor, x, y);
+    cell.passthroughId = passthroughId;
     this.save();
   }
 
@@ -287,7 +294,8 @@ class MapData {
         door: newDoor,
         content: cell.content,
         note: cell.note,
-        teleporterId: cell.teleporterId
+        teleporterId: cell.teleporterId,
+        passthroughId: cell.passthroughId
       };
     }
 

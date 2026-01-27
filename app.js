@@ -24,6 +24,7 @@ const contentTypes = {
   'chute': { icon: 'V', label: 'Chute' },
   'elevator': { icon: 'E', label: 'Elevator' },
   'teleporter': { icon: '', label: 'Teleporter' }, // Icon set dynamically from teleporterId
+  'passthrough': { icon: '', label: 'Pass-Through' }, // Icon set dynamically from passthroughId
   'darkness': { icon: '?', label: 'Darkness' },
   'antimagic': { icon: 'X', label: 'Anti-magic' },
   'inaccessible': { icon: '', label: 'Inaccessible' },
@@ -315,6 +316,9 @@ function handleCenterClick(e, x, y) {
   } else if (currentTool === 'teleporter') {
     showTeleporterModal(x, y);
     return; // Don't render yet, wait for modal
+  } else if (currentTool === 'passthrough') {
+    showPassthroughModal(x, y);
+    return; // Don't render yet, wait for modal
   } else if (currentTool === 'content') {
     // Cycle through content or set specific content
     if (cell.content === currentContent) {
@@ -374,6 +378,8 @@ function renderGrid() {
       // For teleporters, show the teleporterId instead of static icon
       if (cell.content === 'teleporter' && cell.teleporterId) {
         icon.textContent = cell.teleporterId;
+      } else if (cell.content === 'passthrough' && cell.passthroughId) {
+        icon.textContent = cell.passthroughId;
       } else {
         icon.textContent = contentTypes[cell.content].icon;
       }
@@ -509,6 +515,32 @@ function initModals() {
     renderGrid();
   });
 
+  // Pass-through modal
+  const passthroughModal = document.getElementById('passthrough-modal');
+  const passthroughInput = document.getElementById('passthrough-input');
+
+  document.getElementById('passthrough-cancel').addEventListener('click', () => {
+    passthroughModal.classList.remove('active');
+  });
+
+  document.getElementById('passthrough-save').addEventListener('click', () => {
+    const x = parseInt(passthroughModal.dataset.x);
+    const y = parseInt(passthroughModal.dataset.y);
+    const value = passthroughInput.value.trim().toUpperCase();
+    const floor = mapData.data.currentFloor;
+
+    if (value) {
+      mapData.setContent(floor, x, y, 'passthrough');
+      mapData.setPassthroughId(floor, x, y, value);
+    } else {
+      mapData.setContent(floor, x, y, null);
+      mapData.setPassthroughId(floor, x, y, null);
+    }
+
+    passthroughModal.classList.remove('active');
+    renderGrid();
+  });
+
   // Close modals on overlay click
   document.querySelectorAll('.modal-overlay').forEach(overlay => {
     overlay.addEventListener('click', (e) => {
@@ -539,6 +571,18 @@ function showTeleporterModal(x, y) {
   modal.dataset.x = x;
   modal.dataset.y = y;
   input.value = cell.teleporterId || '';
+  modal.classList.add('active');
+  input.focus();
+}
+
+function showPassthroughModal(x, y) {
+  const modal = document.getElementById('passthrough-modal');
+  const input = document.getElementById('passthrough-input');
+  const cell = mapData.getCell(mapData.data.currentFloor, x, y);
+
+  modal.dataset.x = x;
+  modal.dataset.y = y;
+  input.value = cell.passthroughId || '';
   modal.classList.add('active');
   input.focus();
 }
