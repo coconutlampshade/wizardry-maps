@@ -72,7 +72,8 @@ class MapData {
         walls: { n: false, e: false, s: false, w: false },
         door: null,
         content: null,
-        note: ''
+        note: '',
+        teleporterId: null
       };
     }
 
@@ -136,6 +137,12 @@ class MapData {
     this.saveToHistory();
     const cell = this.getCell(floor, x, y);
     cell.note = note;
+    this.save();
+  }
+
+  setTeleporterId(floor, x, y, teleporterId) {
+    const cell = this.getCell(floor, x, y);
+    cell.teleporterId = teleporterId;
     this.save();
   }
 
@@ -279,7 +286,8 @@ class MapData {
         walls: newWalls,
         door: newDoor,
         content: cell.content,
-        note: cell.note
+        note: cell.note,
+        teleporterId: cell.teleporterId
       };
     }
 

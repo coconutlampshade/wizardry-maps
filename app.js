@@ -23,6 +23,7 @@ const contentTypes = {
   'pit': { icon: 'O', label: 'Pit' },
   'chute': { icon: 'V', label: 'Chute' },
   'elevator': { icon: 'E', label: 'Elevator' },
+  'teleporter': { icon: '', label: 'Teleporter' }, // Icon set dynamically from teleporterId
   'darkness': { icon: '?', label: 'Darkness' },
   'antimagic': { icon: 'X', label: 'Anti-magic' },
   'inaccessible': { icon: '', label: 'Inaccessible' },
@@ -264,7 +265,7 @@ function handleEdgeClick(e, x, y, edge) {
     // Place or cycle door type
     if (cell.door && cell.door.edge === edge) {
       // Cycle door type or remove
-      const types = ['normal', 'locked', 'secret', 'one-way', 'secret-one-way', 'teleporter', null];
+      const types = ['normal', 'locked', 'secret', 'one-way', 'secret-one-way', null];
       const currentIndex = types.indexOf(cell.door.type);
       const nextType = types[(currentIndex + 1) % types.length];
       mapData.setDoor(floor, x, y, edge, nextType);
@@ -311,6 +312,9 @@ function handleCenterClick(e, x, y) {
     }
   } else if (currentTool === 'note') {
     showNoteModal(x, y);
+  } else if (currentTool === 'teleporter') {
+    showTeleporterModal(x, y);
+    return; // Don't render yet, wait for modal
   } else if (currentTool === 'content') {
     // Cycle through content or set specific content
     if (cell.content === currentContent) {
@@ -367,7 +371,12 @@ function renderGrid() {
     if (cell.content && contentTypes[cell.content]) {
       const icon = document.createElement('div');
       icon.className = 'cell-content';
-      icon.textContent = contentTypes[cell.content].icon;
+      // For teleporters, show the teleporterId instead of static icon
+      if (cell.content === 'teleporter' && cell.teleporterId) {
+        icon.textContent = cell.teleporterId;
+      } else {
+        icon.textContent = contentTypes[cell.content].icon;
+      }
       cellEl.appendChild(icon);
     }
 
@@ -474,6 +483,32 @@ function initModals() {
     renderGrid();
   });
 
+  // Teleporter modal
+  const teleporterModal = document.getElementById('teleporter-modal');
+  const teleporterInput = document.getElementById('teleporter-input');
+
+  document.getElementById('teleporter-cancel').addEventListener('click', () => {
+    teleporterModal.classList.remove('active');
+  });
+
+  document.getElementById('teleporter-save').addEventListener('click', () => {
+    const x = parseInt(teleporterModal.dataset.x);
+    const y = parseInt(teleporterModal.dataset.y);
+    const value = teleporterInput.value.trim();
+    const floor = mapData.data.currentFloor;
+
+    if (value) {
+      mapData.setContent(floor, x, y, 'teleporter');
+      mapData.setTeleporterId(floor, x, y, value);
+    } else {
+      mapData.setContent(floor, x, y, null);
+      mapData.setTeleporterId(floor, x, y, null);
+    }
+
+    teleporterModal.classList.remove('active');
+    renderGrid();
+  });
+
   // Close modals on overlay click
   document.querySelectorAll('.modal-overlay').forEach(overlay => {
     overlay.addEventListener('click', (e) => {
@@ -492,6 +527,18 @@ function showNoteModal(x, y) {
   modal.dataset.x = x;
   modal.dataset.y = y;
   input.value = cell.note || '';
+  modal.classList.add('active');
+  input.focus();
+}
+
+function showTeleporterModal(x, y) {
+  const modal = document.getElementById('teleporter-modal');
+  const input = document.getElementById('teleporter-input');
+  const cell = mapData.getCell(mapData.data.currentFloor, x, y);
+
+  modal.dataset.x = x;
+  modal.dataset.y = y;
+  input.value = cell.teleporterId || '';
   modal.classList.add('active');
   input.focus();
 }

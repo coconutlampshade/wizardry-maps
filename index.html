@@ -108,8 +108,8 @@
           <button class="tool-btn" data-tool="content" data-content="elevator">
             <span class="swatch swatch-icon" style="background: var(--elevator); color: #000;">E</span> Elevator
           </button>
-          <button class="tool-btn" data-tool="door" data-door-type="teleporter">
-            <span class="swatch swatch-teleporter"></span> Teleporter
+          <button class="tool-btn" data-tool="teleporter">
+            <span class="swatch swatch-icon" style="background: var(--teleporter)">T</span> Teleporter
           </button>
         </div>
       </div>
@@ -233,6 +233,19 @@
     </div>
   </div>
 
+  <!-- Teleporter Modal -->
+  <div id="teleporter-modal" class="modal-overlay">
+    <div class="modal">
+      <h2>Teleporter</h2>
+      <p class="modal-hint">Enter number for source (e.g., "1") or number with apostrophe for destination (e.g., "1'")</p>
+      <input type="text" id="teleporter-input" class="note-input" placeholder="e.g., 1 or 1'">
+      <div class="modal-buttons">
+        <button id="teleporter-cancel" class="secondary">Cancel</button>
+        <button id="teleporter-save" class="primary">Save</button>
+      </div>
+    </div>
+  </div>
+
   <!-- User Guide Panel -->
   <div id="guide-overlay" class="guide-overlay"></div>
   <aside id="user-guide" class="guide-panel">
@@ -306,6 +319,8 @@
           <span class="legend-item"><em>E</em> Elevator</span>
           <span class="legend-item"><em>?</em> Darkness</span>
           <span class="legend-item"><em>X</em> Anti-Magic</span>
+          <span class="legend-item"><em>1</em> Teleporter source</span>
+          <span class="legend-item"><em>1'</em> Teleporter dest</span>
         </div>
       </section>
     </div>

@@ -377,30 +377,6 @@ main {
   background: #888;
 }
 
-/* Teleporter swatch - like door but orange */
-.swatch-teleporter {
-  background: var(--bg-dark);
-  border: 1px solid var(--grid-line);
-}
-.swatch-teleporter::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: var(--wall-color);
-}
-.swatch-teleporter::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 10px;
-  height: 4px;
-  background: #ff8c00;
-}
 
 /* Secret one-way swatch - gray with red arrow */
 .swatch-door-secret-oneway {
@@ -542,6 +518,7 @@ main {
 .cell.elevator { background: var(--elevator); }
 .cell.stairs-up { background: var(--stairs-up); }
 .cell.stairs-down { background: var(--stairs-down); }
+.cell.teleporter { background: var(--teleporter); }
 .cell.inaccessible { background: #444; }
 .cell.explored { background: #3a5a3a; }
 
@@ -660,7 +637,6 @@ main {
 .door.locked { background: #ff0000; }
 .door.secret { background: #888; }
 .door.one-way { background: #ff0000; }
-.door.teleporter { background: #ff8c00; }
 .door.secret-one-way { background: #888; }
 
 /* Secret one-way door arrows - gray door with red arrow */
@@ -1010,6 +986,12 @@ main {
   color: var(--text);
   border: 1px solid var(--bg-light);
   border-radius: 4px;
+}
+
+.modal-hint {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  margin-bottom: 12px;
 }
 
 /* Shortcuts Bar (horizontal, under map) */
