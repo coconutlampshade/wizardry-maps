@@ -15,6 +15,9 @@ let pathStart = null;
 let currentPath = null;
 let pathDirections = null;
 
+// Hover state for keyboard shortcuts
+let hoveredCell = null;
+
 // Content type definitions
 const contentTypes = {
   'stairs-up': { icon: 'U', label: 'Stairs Up' },
@@ -241,6 +244,16 @@ function initGrid() {
       centerZone.className = 'center-zone';
       centerZone.addEventListener('click', (e) => handleCenterClick(e, x, y));
       cell.appendChild(centerZone);
+
+      // Track hovered cell for keyboard shortcuts
+      cell.addEventListener('mouseenter', () => {
+        hoveredCell = { x, y };
+      });
+      cell.addEventListener('mouseleave', () => {
+        if (hoveredCell && hoveredCell.x === x && hoveredCell.y === y) {
+          hoveredCell = null;
+        }
+      });
 
       grid.appendChild(cell);
     }
@@ -945,15 +958,19 @@ function initKeyboardShortcuts() {
       }
     }
 
-    // G: toggle explored/gray cell at player position
+    // G: toggle explored/gray cell at hovered position
     // Shift+G: flood-fill explored within walled perimeter
     if (e.key.toLowerCase() === 'g' && !e.ctrlKey && !e.metaKey) {
+      // Use hovered cell if available, otherwise use player position
+      const targetX = hoveredCell ? hoveredCell.x : pos.x;
+      const targetY = hoveredCell ? hoveredCell.y : pos.y;
+
       if (e.shiftKey) {
-        // Flood-fill from player position, bounded by walls
-        floodFillExplored(floor, pos.x, pos.y);
+        // Flood-fill from target position, bounded by walls
+        floodFillExplored(floor, targetX, targetY);
       } else {
-        const cell = mapData.getCell(floor, pos.x, pos.y);
-        mapData.setContent(floor, pos.x, pos.y, cell.content === 'explored' ? null : 'explored');
+        const cell = mapData.getCell(floor, targetX, targetY);
+        mapData.setContent(floor, targetX, targetY, cell.content === 'explored' ? null : 'explored');
       }
       renderGrid();
     }
