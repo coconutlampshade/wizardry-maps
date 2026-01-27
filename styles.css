@@ -38,6 +38,8 @@ body.light-mode {
   --player-color: #228b22;
 }
 
+body.light-mode .cell.explored { background: #b8e0b8; }
+
 :root {
   --player-color: #0f0;
 }
@@ -175,6 +177,8 @@ main {
   text-align: left;
   font-size: 0.85rem;
   transition: all 0.2s;
+  display: flex;
+  align-items: center;
 }
 
 .tool-btn:hover {
@@ -190,27 +194,213 @@ main {
   margin-right: 6px;
 }
 
-/* Legend */
-.legend {
-  font-size: 0.75rem;
+.tool-btn .swatch {
+  display: inline-block;
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  margin-right: 8px;
+  vertical-align: middle;
+  font-size: 14px;
+  line-height: 22px;
+  text-align: center;
+  position: relative;
+  flex-shrink: 0;
 }
 
-.legend-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 3px 0;
+.tool-btn .swatch-icon {
+  color: #fff;
+  font-weight: bold;
+  text-shadow:
+    -1px -1px 0 #000,
+    1px -1px 0 #000,
+    -1px 1px 0 #000,
+    1px 1px 0 #000;
 }
 
-.legend-swatch {
-  width: 16px;
-  height: 16px;
-  border-radius: 3px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+/* Wall swatch - white line */
+.swatch-wall {
+  background: var(--bg-dark);
+  border: 1px solid var(--grid-line);
+}
+.swatch-wall::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 3px;
+  right: 3px;
+  height: 4px;
+  background: var(--wall-color);
+}
+
+/* Door swatch - white line with red center */
+.swatch-door {
+  background: var(--bg-dark);
+  border: 1px solid var(--grid-line);
+}
+.swatch-door::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--wall-color);
+}
+.swatch-door::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 10px;
+  height: 4px;
+  background: #ff0000;
+}
+
+/* Locked door - same as door with border */
+.swatch-door-locked {
+  background: var(--bg-dark);
+  border: 1px solid var(--grid-line);
+}
+.swatch-door-locked::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--wall-color);
+}
+.swatch-door-locked::after {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 10px;
+  height: 6px;
+  background: #ff0000;
+  border: 2px solid #fff;
+}
+
+/* Secret door - gray segment */
+.swatch-door-secret {
+  background: var(--bg-dark);
+  border: 1px solid var(--grid-line);
+}
+.swatch-door-secret::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--wall-color);
+}
+.swatch-door-secret::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 10px;
+  height: 4px;
+  background: #888;
+}
+
+/* Teleporter swatch - like door but orange */
+.swatch-teleporter {
+  background: var(--bg-dark);
+  border: 1px solid var(--grid-line);
+}
+.swatch-teleporter::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--wall-color);
+}
+.swatch-teleporter::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 10px;
+  height: 4px;
+  background: #ff8c00;
+}
+
+/* Secret one-way swatch - gray with red arrow */
+.swatch-door-secret-oneway {
+  background: var(--bg-dark);
+  border: 1px solid var(--grid-line);
+}
+.swatch-door-secret-oneway::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--wall-color);
+}
+.swatch-door-secret-oneway::after {
+  content: '▼';
+  position: absolute;
+  top: 2px;
+  left: 50%;
+  transform: translateX(-50%);
   font-size: 10px;
+  line-height: 1;
+  color: #ff0000;
+  background: #888;
 }
+
+/* One-way door - red with arrow */
+.swatch-door-oneway {
+  background: var(--bg-dark);
+  border: 1px solid var(--grid-line);
+}
+.swatch-door-oneway::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--wall-color);
+}
+.swatch-door-oneway::after {
+  content: '▼';
+  position: absolute;
+  top: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  line-height: 1;
+  color: #ff0000;
+}
+
+/* Note swatch - yellow dot */
+.swatch-note {
+  background: var(--bg-dark);
+  border: 1px solid var(--grid-line);
+}
+.swatch-note::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 8px;
+  height: 8px;
+  background: #ffff00;
+  border-radius: 50%;
+}
+
 
 /* Map Container */
 .map-container {
@@ -271,25 +461,21 @@ main {
   height: 28px;
   background: var(--cell-empty);
   cursor: pointer;
-  outline: 1px solid rgba(255, 255, 255, 0.08);
+  outline: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.cell.explored {
-  background: var(--cell-explored);
-}
 
 /* Cell Content Types */
 .cell.darkness { background: var(--darkness); }
 .cell.antimagic { background: var(--antimagic); }
-.cell.teleporter { background: var(--teleporter); }
 .cell.spinner { background: var(--spinner); }
 .cell.pit { background: var(--pit); }
 .cell.chute { background: var(--chute); }
 .cell.elevator { background: var(--elevator); }
-.cell.encounter { background: var(--encounter); }
 .cell.stairs-up { background: var(--stairs-up); }
 .cell.stairs-down { background: var(--stairs-down); }
 .cell.inaccessible { background: #444; }
+.cell.explored { background: #3a5a3a; }
 
 /* Cell Content Icons */
 .cell-content {
@@ -297,9 +483,48 @@ main {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 14px;
+  font-size: 16px;
+  font-weight: bold;
   pointer-events: none;
   z-index: 5;
+  color: #fff;
+  text-shadow:
+    -1px -1px 0 #000,
+    1px -1px 0 #000,
+    -1px 1px 0 #000,
+    1px 1px 0 #000,
+    0 0 4px rgba(0, 0, 0, 0.8);
+}
+
+/* Specific icon adjustments for better visibility */
+.cell.stairs-up .cell-content,
+.cell.stairs-down .cell-content {
+  font-size: 15px;
+  font-family: Arial, sans-serif;
+}
+
+.cell.elevator .cell-content {
+  font-size: 20px;
+  color: #000;
+  text-shadow:
+    -1px -1px 0 #fff,
+    1px -1px 0 #fff,
+    -1px 1px 0 #fff,
+    1px 1px 0 #fff;
+}
+
+.cell.spinner .cell-content {
+  font-size: 18px;
+}
+
+.cell.pit .cell-content,
+.cell.chute .cell-content {
+  font-size: 18px;
+}
+
+.cell.darkness .cell-content,
+.cell.antimagic .cell-content {
+  font-size: 14px;
 }
 
 /* Walls - extended to connect at corners */
@@ -366,7 +591,97 @@ main {
 .door.normal { background: #ff0000; }
 .door.locked { background: #ff0000; }
 .door.secret { background: #888; }
-.door.one-way { background: #aa44dd; }
+.door.one-way { background: #ff0000; }
+.door.teleporter { background: #ff8c00; }
+.door.secret-one-way { background: #888; }
+
+/* Secret one-way door arrows - gray door with red arrow */
+.door.secret-one-way::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+
+.door.secret-one-way[data-edge="n"]::after {
+  border-left: 3px solid transparent;
+  border-right: 3px solid transparent;
+  border-top: 4px solid #ff0000;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.door.secret-one-way[data-edge="s"]::after {
+  border-left: 3px solid transparent;
+  border-right: 3px solid transparent;
+  border-bottom: 4px solid #ff0000;
+  top: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.door.secret-one-way[data-edge="e"]::after {
+  border-top: 3px solid transparent;
+  border-bottom: 3px solid transparent;
+  border-right: 4px solid #ff0000;
+  left: -5px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.door.secret-one-way[data-edge="w"]::after {
+  border-top: 3px solid transparent;
+  border-bottom: 3px solid transparent;
+  border-left: 4px solid #ff0000;
+  right: -5px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* One-way door arrows - point into the cell */
+.door.one-way::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+
+.door.one-way[data-edge="n"]::after {
+  border-left: 3px solid transparent;
+  border-right: 3px solid transparent;
+  border-top: 4px solid #ff0000;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.door.one-way[data-edge="s"]::after {
+  border-left: 3px solid transparent;
+  border-right: 3px solid transparent;
+  border-bottom: 4px solid #ff0000;
+  top: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.door.one-way[data-edge="e"]::after {
+  border-top: 3px solid transparent;
+  border-bottom: 3px solid transparent;
+  border-right: 4px solid #ff0000;
+  left: -5px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.door.one-way[data-edge="w"]::after {
+  border-top: 3px solid transparent;
+  border-bottom: 3px solid transparent;
+  border-left: 4px solid #ff0000;
+  right: -5px;
+  top: 50%;
+  transform: translateY(-50%);
+}
 
 /* Edge Click Zones */
 .edge-zone {
@@ -471,6 +786,19 @@ main {
 
 .player-marker[data-facing="W"] {
   transform: translate(-50%, -50%) rotate(270deg);
+}
+
+/* Path visualization */
+.cell.path-cell {
+  background: rgba(255, 165, 0, 0.4) !important;
+}
+
+.cell.path-start {
+  background: rgba(0, 255, 0, 0.5) !important;
+}
+
+.cell.path-end {
+  background: rgba(255, 0, 0, 0.5) !important;
 }
 
 /* Note Indicator */
@@ -616,22 +944,183 @@ main {
   border-radius: 4px;
 }
 
-/* Keyboard Shortcuts Help */
-.shortcuts {
-  font-size: 0.7rem;
-  color: var(--text-dim);
-  margin-top: 10px;
+/* Shortcuts Bar (horizontal, under map) */
+.shortcuts-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  justify-content: center;
+  margin-top: 15px;
+  padding: 12px 16px;
+  background: var(--bg-medium);
+  border-radius: 6px;
+  font-size: 0.8rem;
+  color: var(--text);
 }
 
-.shortcuts div {
-  padding: 2px 0;
-}
-
-.shortcuts kbd {
-  background: var(--bg-light);
-  padding: 1px 4px;
-  border-radius: 2px;
+.shortcuts-bar kbd {
+  background: var(--accent);
+  color: #fff;
+  padding: 3px 6px;
+  border-radius: 3px;
   font-family: monospace;
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin-right: 5px;
+}
+
+/* User Guide Panel */
+.guide-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  z-index: 90;
+}
+
+.guide-overlay.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.guide-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 320px;
+  max-width: 90vw;
+  background: var(--bg-medium);
+  border-left: 2px solid var(--accent);
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+  z-index: 95;
+  display: flex;
+  flex-direction: column;
+}
+
+.guide-panel.visible {
+  transform: translateX(0);
+}
+
+.guide-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--bg-light);
+  flex-shrink: 0;
+}
+
+.guide-header h2 {
+  color: var(--accent);
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.guide-close {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.guide-close:hover {
+  background: var(--bg-light);
+  color: var(--text);
+}
+
+.guide-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 20px;
+}
+
+.guide-section {
+  margin-bottom: 20px;
+}
+
+.guide-section:last-child {
+  margin-bottom: 0;
+}
+
+.guide-section h3 {
+  color: var(--accent);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+}
+
+.guide-section p {
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.guide-section dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px 12px;
+  margin: 0;
+}
+
+.guide-section dt {
+  color: var(--text);
+  font-size: 0.8rem;
+  font-weight: 500;
+  font-family: monospace;
+  background: var(--bg-light);
+  padding: 2px 6px;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+
+.guide-section dd {
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  margin: 0;
+  display: flex;
+  align-items: center;
+}
+
+.guide-note {
+  margin-top: 8px;
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  font-style: italic;
+}
+
+.legend-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.legend-item {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  background: var(--bg-light);
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.legend-item em {
+  color: var(--text);
+  font-style: normal;
+  font-weight: 500;
 }
 
 /* Responsive */

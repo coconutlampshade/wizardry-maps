@@ -27,10 +27,11 @@
       </div>
       <div class="header-buttons">
         <span id="save-indicator" class="save-indicator">Saved</span>
+        <button id="save-btn">Save</button>
         <button id="theme-btn" title="Toggle light/dark mode">Light</button>
         <button id="export-btn">Export</button>
         <button id="import-btn">Import</button>
-        <button id="clear-floor-btn">Clear Floor</button>
+        <button id="guide-btn">Guide</button>
       </div>
     </div>
   </header>
@@ -38,133 +39,63 @@
   <main>
     <aside class="toolbar">
       <div class="tool-section">
-        <h3>Tools</h3>
-        <div class="tool-group">
-          <button class="tool-btn" data-tool="wall">
-            <span class="icon">▢</span> Wall
-          </button>
-          <button class="tool-btn" data-tool="door" data-door-type="normal">
-            <span class="icon">▯</span> Door
-          </button>
-          <button class="tool-btn" data-tool="door" data-door-type="locked">
-            <span class="icon">▯</span> Locked Door
-          </button>
-          <button class="tool-btn" data-tool="door" data-door-type="secret">
-            <span class="icon">▯</span> Secret Door
-          </button>
-          <button class="tool-btn" data-tool="door" data-door-type="one-way">
-            <span class="icon">▯</span> One-Way Door
-          </button>
-        </div>
-      </div>
-
-      <div class="tool-section">
         <h3>Features</h3>
         <div class="tool-group">
+          <button class="tool-btn" data-tool="wall">
+            <span class="swatch swatch-wall"></span> Wall
+          </button>
+          <button class="tool-btn" data-tool="door" data-door-type="normal">
+            <span class="swatch swatch-door"></span> Door
+          </button>
+          <button class="tool-btn" data-tool="door" data-door-type="locked">
+            <span class="swatch swatch-door-locked"></span> Locked Door
+          </button>
+          <button class="tool-btn" data-tool="door" data-door-type="secret">
+            <span class="swatch swatch-door-secret"></span> Secret Door
+          </button>
+          <button class="tool-btn" data-tool="door" data-door-type="one-way">
+            <span class="swatch swatch-door-oneway"></span> One-Way
+          </button>
+          <button class="tool-btn" data-tool="door" data-door-type="secret-one-way">
+            <span class="swatch swatch-door-secret-oneway"></span> Secret One-Way
+          </button>
           <button class="tool-btn" data-tool="content" data-content="stairs-up">
-            <span class="icon">↑</span> Stairs Up
+            <span class="swatch" style="background: var(--stairs-up); font-weight: bold;">U</span> Stairs Up
           </button>
           <button class="tool-btn" data-tool="content" data-content="stairs-down">
-            <span class="icon">↓</span> Stairs Down
+            <span class="swatch" style="background: var(--stairs-down); font-weight: bold;">D</span> Stairs Down
           </button>
-          <button class="tool-btn" data-tool="content" data-content="teleporter">
-            <span class="icon">◎</span> Teleporter
+          <button class="tool-btn" data-tool="door" data-door-type="teleporter">
+            <span class="swatch swatch-teleporter"></span> Teleporter
           </button>
           <button class="tool-btn" data-tool="content" data-content="spinner">
-            <span class="icon">⟳</span> Spinner
+            <span class="swatch swatch-icon" style="background: var(--spinner)">@</span> Spinner
           </button>
           <button class="tool-btn" data-tool="content" data-content="pit">
-            <span class="icon">○</span> Pit
+            <span class="swatch swatch-icon" style="background: var(--pit)">O</span> Pit
           </button>
           <button class="tool-btn" data-tool="content" data-content="chute">
-            <span class="icon">⇓</span> Chute
+            <span class="swatch swatch-icon" style="background: var(--chute)">V</span> Chute
           </button>
           <button class="tool-btn" data-tool="content" data-content="elevator">
-            <span class="icon">⬍</span> Elevator
+            <span class="swatch swatch-icon" style="background: var(--elevator); color: #000;">E</span> Elevator
           </button>
           <button class="tool-btn" data-tool="content" data-content="darkness">
-            <span class="icon">▪</span> Darkness
+            <span class="swatch swatch-icon" style="background: var(--darkness)">?</span> Darkness
           </button>
           <button class="tool-btn" data-tool="content" data-content="antimagic">
-            <span class="icon">✕</span> Anti-Magic
+            <span class="swatch swatch-icon" style="background: var(--antimagic)">X</span> Anti-Magic
           </button>
-          <button class="tool-btn" data-tool="content" data-content="encounter">
-            <span class="icon">!</span> Encounter
-          </button>
-        </div>
-      </div>
-
-      <div class="tool-section">
-        <h3>Other</h3>
-        <div class="tool-group">
-          <button class="tool-btn" data-tool="player">
-            <span class="icon">▲</span> Player
+          <button class="tool-btn" data-tool="content" data-content="inaccessible">
+            <span class="swatch" style="background: #444"></span> Inaccessible
           </button>
           <button class="tool-btn" data-tool="note">
-            <span class="icon">✎</span> Note
-          </button>
-          <button class="tool-btn" data-tool="erase">
-            <span class="icon">✗</span> Erase
+            <span class="swatch swatch-note"></span> Note
           </button>
         </div>
       </div>
 
-      <div class="tool-section">
-        <h3>Legend</h3>
-        <div class="legend">
-          <div class="legend-item">
-            <span class="legend-swatch" style="background: var(--wall-color)"></span>
-            <span>Wall</span>
-          </div>
-          <div class="legend-item">
-            <span class="legend-swatch" style="background: var(--door-color)"></span>
-            <span>Door</span>
-          </div>
-          <div class="legend-item">
-            <span class="legend-swatch" style="background: #ff4444"></span>
-            <span>Locked</span>
-          </div>
-          <div class="legend-item">
-            <span class="legend-swatch" style="background: #666; border: 1px dashed #999"></span>
-            <span>Secret</span>
-          </div>
-          <div class="legend-item">
-            <span class="legend-swatch" style="background: var(--stairs-up)">↑</span>
-            <span>Stairs Up</span>
-          </div>
-          <div class="legend-item">
-            <span class="legend-swatch" style="background: var(--stairs-down)">↓</span>
-            <span>Stairs Down</span>
-          </div>
-          <div class="legend-item">
-            <span class="legend-swatch" style="background: var(--darkness)"></span>
-            <span>Darkness</span>
-          </div>
-          <div class="legend-item">
-            <span class="legend-swatch" style="background: var(--antimagic)"></span>
-            <span>Anti-Magic</span>
-          </div>
-          <div class="legend-item">
-            <span class="legend-swatch" style="background: #444"></span>
-            <span>Inaccessible</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="tool-section shortcuts">
-        <h3>Shortcuts</h3>
-        <div><kbd>Arrow</kbd> Move player</div>
-        <div><kbd>W/A/S/D</kbd> Toggle walls</div>
-        <div><kbd>1-9, 0</kbd> Switch floors</div>
-        <div><kbd>E</kbd> Erase mode</div>
-        <div><kbd>R</kbd> Rotate player</div>
-        <div><kbd>Shift+R</kbd> Rotate map</div>
-        <div><kbd>I</kbd> Inaccessible</div>
-        <div><kbd>Z</kbd> Undo</div>
-        <div><kbd>Shift+Z</kbd> Redo</div>
-        <div><kbd>Esc</kbd> Wall tool</div>
-      </div>
-    </aside>
+          </aside>
 
     <section class="map-container">
       <div class="map-header">
@@ -211,6 +142,19 @@
           <div class="coord-corner"></div>
         </div>
       </div>
+      <div class="shortcuts-bar">
+        <span><kbd>Arrow/WASD</kbd> Move</span>
+        <span><kbd>Shift+WASD</kbd> Walls</span>
+        <span><kbd>Shift+Click</kbd> Delete</span>
+        <span><kbd>1-0</kbd> Floors</span>
+        <span><kbd>R</kbd> Rotate</span>
+        <span><kbd>Shift+R</kbd> Rotate map</span>
+        <span><kbd>G</kbd> Explored</span>
+        <span><kbd>Shift+G</kbd> Fill room</span>
+        <span><kbd>Z</kbd> Undo</span>
+        <span><kbd>Shift+Z</kbd> Redo</span>
+        <span><kbd>Cmd+Opt+Click</kbd> Path</span>
+      </div>
     </section>
   </main>
 
@@ -237,6 +181,84 @@
       </div>
     </div>
   </div>
+
+  <!-- User Guide Panel -->
+  <div id="guide-overlay" class="guide-overlay"></div>
+  <aside id="user-guide" class="guide-panel">
+    <div class="guide-header">
+      <h2>User Guide</h2>
+      <button id="guide-close" class="guide-close" aria-label="Close guide">&times;</button>
+    </div>
+    <div class="guide-body">
+      <section class="guide-section">
+        <h3>Getting Started</h3>
+        <p>Create dungeon maps for Wizardry: Proving Grounds of the Mad Overlord. Each floor is a 20x20 grid. The green arrow shows your position and facing.</p>
+      </section>
+
+      <section class="guide-section">
+        <h3>Navigation</h3>
+        <dl>
+          <dt>Click cell</dt><dd>Move player there</dd>
+          <dt>Arrow / WASD</dt><dd>Move player</dd>
+          <dt>R</dt><dd>Rotate facing</dd>
+          <dt>Shift+R</dt><dd>Rotate map view</dd>
+          <dt>1-9, 0</dt><dd>Switch floors</dd>
+        </dl>
+      </section>
+
+      <section class="guide-section">
+        <h3>Walls & Doors</h3>
+        <dl>
+          <dt>Click edge</dt><dd>Add wall or door</dd>
+          <dt>Shift+WASD</dt><dd>Toggle wall</dd>
+          <dt>Shift+Click</dt><dd>Delete wall/door</dd>
+          <dt>Click door</dt><dd>Cycle door types</dd>
+        </dl>
+      </section>
+
+      <section class="guide-section">
+        <h3>Cell Features</h3>
+        <dl>
+          <dt>Select + Click</dt><dd>Place feature</dd>
+          <dt>Shift+Click</dt><dd>Clear cell</dd>
+          <dt>G</dt><dd>Mark explored</dd>
+          <dt>Shift+G</dt><dd>Flood-fill explored</dd>
+        </dl>
+      </section>
+
+      <section class="guide-section">
+        <h3>Pathfinding</h3>
+        <dl>
+          <dt>Cmd+Opt+Click</dt><dd>Set start</dd>
+          <dt>Cmd+Opt+Click</dt><dd>Set end / clear</dd>
+        </dl>
+        <p class="guide-note">Directions: F=Forward, L=Left, R=Right, O=Open</p>
+      </section>
+
+      <section class="guide-section">
+        <h3>Other</h3>
+        <dl>
+          <dt>Z / Shift+Z</dt><dd>Undo / Redo</dd>
+          <dt>Save</dt><dd>Download backup</dd>
+          <dt>Import/Export</dt><dd>JSON data</dd>
+        </dl>
+      </section>
+
+      <section class="guide-section">
+        <h3>Legend</h3>
+        <div class="legend-items">
+          <span class="legend-item"><em>U</em> Stairs Up</span>
+          <span class="legend-item"><em>D</em> Stairs Down</span>
+          <span class="legend-item"><em>O</em> Pit</span>
+          <span class="legend-item"><em>V</em> Chute</span>
+          <span class="legend-item"><em>@</em> Spinner</span>
+          <span class="legend-item"><em>E</em> Elevator</span>
+          <span class="legend-item"><em>?</em> Darkness</span>
+          <span class="legend-item"><em>X</em> Anti-Magic</span>
+        </div>
+      </section>
+    </div>
+  </aside>
 
   <script src="map-data.js"></script>
   <script src="app.js"></script>

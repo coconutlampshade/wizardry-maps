@@ -10,19 +10,23 @@ let currentDoorType = 'normal';
 let currentContent = 'stairs-up';
 let viewRotation = 0; // Cumulative rotation in degrees (keeps increasing)
 
+// Path drawing state
+let pathStart = null;
+let currentPath = null;
+let pathDirections = null;
+
 // Content type definitions
 const contentTypes = {
-  'stairs-up': { icon: '↑', label: 'Stairs Up' },
-  'stairs-down': { icon: '↓', label: 'Stairs Down' },
-  'teleporter': { icon: '◎', label: 'Teleporter' },
-  'spinner': { icon: '⟳', label: 'Spinner' },
-  'pit': { icon: '○', label: 'Pit' },
-  'chute': { icon: '⇓', label: 'Chute' },
-  'elevator': { icon: '⬍', label: 'Elevator' },
-  'darkness': { icon: '▪', label: 'Darkness' },
-  'antimagic': { icon: '✕', label: 'Anti-magic' },
-  'encounter': { icon: '!', label: 'Encounter' },
-  'inaccessible': { icon: '', label: 'Inaccessible' }
+  'stairs-up': { icon: 'U', label: 'Stairs Up' },
+  'stairs-down': { icon: 'D', label: 'Stairs Down' },
+  'spinner': { icon: '@', label: 'Spinner' },
+  'pit': { icon: 'O', label: 'Pit' },
+  'chute': { icon: 'V', label: 'Chute' },
+  'elevator': { icon: 'E', label: 'Elevator' },
+  'darkness': { icon: '?', label: 'Darkness' },
+  'antimagic': { icon: 'X', label: 'Anti-magic' },
+  'inaccessible': { icon: '', label: 'Inaccessible' },
+  'explored': { icon: '', label: 'Explored' }
 };
 
 // Player facing arrows
@@ -41,6 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initModals();
   initKeyboardShortcuts();
   initThemeToggle();
+  initGuideToggle();
   renderGrid();
 });
 
@@ -58,6 +63,41 @@ function initThemeToggle() {
     const isLight = document.body.classList.contains('light-mode');
     btn.textContent = isLight ? 'Dark' : 'Light';
     localStorage.setItem('wizardry-maps-theme', isLight ? 'light' : 'dark');
+  });
+}
+
+function initGuideToggle() {
+  const btn = document.getElementById('guide-btn');
+  const guide = document.getElementById('user-guide');
+  const overlay = document.getElementById('guide-overlay');
+  const closeBtn = document.getElementById('guide-close');
+
+  function openGuide() {
+    guide.classList.add('visible');
+    overlay.classList.add('visible');
+  }
+
+  function closeGuide() {
+    guide.classList.remove('visible');
+    overlay.classList.remove('visible');
+  }
+
+  btn.addEventListener('click', () => {
+    if (guide.classList.contains('visible')) {
+      closeGuide();
+    } else {
+      openGuide();
+    }
+  });
+
+  closeBtn.addEventListener('click', closeGuide);
+  overlay.addEventListener('click', closeGuide);
+
+  // Close on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && guide.classList.contains('visible')) {
+      closeGuide();
+    }
   });
 }
 
@@ -101,6 +141,11 @@ function initToolbar() {
   // Set initial active tool
   document.querySelector('.tool-btn[data-tool="wall"]').classList.add('active');
 
+  // Save button - downloads file
+  document.getElementById('save-btn').addEventListener('click', () => {
+    downloadBackup();
+  });
+
   // Export button
   document.getElementById('export-btn').addEventListener('click', exportMap);
 
@@ -109,13 +154,6 @@ function initToolbar() {
     document.getElementById('import-modal').classList.add('active');
   });
 
-  // Clear floor button
-  document.getElementById('clear-floor-btn').addEventListener('click', () => {
-    if (confirm(`Clear all data on Floor ${mapData.data.currentFloor}?`)) {
-      mapData.clearFloor(mapData.data.currentFloor);
-      renderGrid();
-    }
-  });
 }
 
 function initGrid() {
@@ -156,6 +194,13 @@ function handleEdgeClick(e, x, y, edge) {
   const floor = mapData.data.currentFloor;
   const cell = mapData.getCell(floor, x, y);
 
+  // Shift+click to delete wall and door
+  if (e.shiftKey) {
+    mapData.setWall(floor, x, y, edge, false);
+    renderGrid();
+    return;
+  }
+
   if (currentTool === 'wall') {
     // Toggle wall
     mapData.setWall(floor, x, y, edge, !cell.walls[edge]);
@@ -163,15 +208,13 @@ function handleEdgeClick(e, x, y, edge) {
     // Place or cycle door type
     if (cell.door && cell.door.edge === edge) {
       // Cycle door type or remove
-      const types = ['normal', 'locked', 'secret', 'one-way', null];
+      const types = ['normal', 'locked', 'secret', 'one-way', 'secret-one-way', 'teleporter', null];
       const currentIndex = types.indexOf(cell.door.type);
       const nextType = types[(currentIndex + 1) % types.length];
       mapData.setDoor(floor, x, y, edge, nextType);
     } else {
       mapData.setDoor(floor, x, y, edge, currentDoorType);
     }
-  } else if (currentTool === 'erase') {
-    mapData.setWall(floor, x, y, edge, false);
   }
 
   renderGrid();
@@ -182,6 +225,20 @@ function handleCenterClick(e, x, y) {
   const floor = mapData.data.currentFloor;
   const cell = mapData.getCell(floor, x, y);
   const pos = mapData.data.playerPosition;
+
+  // Cmd+Option(Alt)+click for path drawing
+  if (e.metaKey && e.altKey) {
+    handlePathClick(x, y);
+    return;
+  }
+
+  // Shift+click to delete content and note
+  if (e.shiftKey) {
+    mapData.setContent(floor, x, y, null);
+    mapData.setNote(floor, x, y, '');
+    renderGrid();
+    return;
+  }
 
   // Always move player to clicked cell
   if (pos.x !== x || pos.y !== y) {
@@ -198,9 +255,6 @@ function handleCenterClick(e, x, y) {
     }
   } else if (currentTool === 'note') {
     showNoteModal(x, y);
-  } else if (currentTool === 'erase') {
-    mapData.setContent(floor, x, y, null);
-    mapData.setNote(floor, x, y, '');
   } else if (currentTool === 'content') {
     // Cycle through content or set specific content
     if (cell.content === currentContent) {
@@ -233,11 +287,6 @@ function renderGrid() {
       cellEl.classList.add(cell.content);
     }
 
-    // Check if cell has any walls or content (explored)
-    const hasWalls = Object.values(cell.walls).some(v => v);
-    if (hasWalls || cell.content || cell.note) {
-      cellEl.classList.add('explored');
-    }
 
     // Render walls
     Object.entries(cell.walls).forEach(([edge, hasWall]) => {
@@ -252,6 +301,9 @@ function renderGrid() {
     if (cell.door) {
       const door = document.createElement('div');
       door.className = `door door-${cell.door.edge} ${cell.door.type}`;
+      if (cell.door.type === 'one-way' || cell.door.type === 'secret-one-way') {
+        door.dataset.edge = cell.door.edge;
+      }
       cellEl.appendChild(door);
     }
 
@@ -279,9 +331,28 @@ function renderGrid() {
       player.dataset.facing = pos.facing;
       cellEl.appendChild(player);
     }
+
+    // Render path start marker
+    if (pathStart && pathStart.x === x && pathStart.y === y && !currentPath) {
+      cellEl.classList.add('path-start');
+    }
+
+    // Render path
+    if (currentPath) {
+      const pathIndex = currentPath.findIndex(p => p.x === x && p.y === y);
+      if (pathIndex !== -1) {
+        cellEl.classList.add('path-cell');
+        if (pathIndex === 0) {
+          cellEl.classList.add('path-start');
+        } else if (pathIndex === currentPath.length - 1) {
+          cellEl.classList.add('path-end');
+        }
+      }
+    }
   });
 
   updateMapInfo();
+  updatePathDisplay();
 }
 
 function updateMapInfo() {
@@ -381,6 +452,214 @@ function exportMap() {
   URL.revokeObjectURL(url);
 }
 
+function downloadBackup(isAuto = false) {
+  const data = mapData.exportJSON();
+  const blob = new Blob([data], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `wizardry-backup-${timestamp}.json`;
+  a.click();
+
+  URL.revokeObjectURL(url);
+
+  // Show indicator
+  const indicator = document.getElementById('save-indicator');
+  indicator.textContent = isAuto ? 'Auto-saved' : 'Saved';
+  indicator.classList.add('visible');
+  setTimeout(() => indicator.classList.remove('visible'), 2000);
+}
+
+function handlePathClick(x, y) {
+  // If path exists, clear it
+  if (currentPath) {
+    pathStart = null;
+    currentPath = null;
+    pathDirections = null;
+    renderGrid();
+    updatePathDisplay();
+    return;
+  }
+
+  // If no start point, set it
+  if (!pathStart) {
+    pathStart = { x, y };
+    renderGrid();
+    return;
+  }
+
+  // We have a start, now find path to this end point
+  const floor = mapData.data.currentFloor;
+  const path = findPath(floor, pathStart.x, pathStart.y, x, y);
+
+  if (path && path.length > 1) {
+    currentPath = path;
+    // Calculate directions based on player's current facing
+    pathDirections = pathToDirections(path, mapData.data.playerPosition.facing);
+  } else {
+    // No path found, reset
+    pathStart = null;
+  }
+
+  renderGrid();
+  updatePathDisplay();
+}
+
+function findPath(floor, startX, startY, endX, endY) {
+  const queue = [[startX, startY, [{ x: startX, y: startY }]]];
+  const visited = new Set();
+  visited.add(`${startX},${startY}`);
+
+  while (queue.length > 0) {
+    const [x, y, path] = queue.shift();
+
+    if (x === endX && y === endY) {
+      return path;
+    }
+
+    const cell = mapData.getCell(floor, x, y);
+
+    // Check each direction
+    const moves = [
+      { dir: 'n', dx: 0, dy: 1, wall: 'n' },
+      { dir: 's', dx: 0, dy: -1, wall: 's' },
+      { dir: 'e', dx: 1, dy: 0, wall: 'e' },
+      { dir: 'w', dx: -1, dy: 0, wall: 'w' }
+    ];
+
+    for (const move of moves) {
+      const nx = x + move.dx;
+      const ny = y + move.dy;
+      const key = `${nx},${ny}`;
+
+      if (nx < 0 || nx > 19 || ny < 0 || ny > 19) continue;
+      if (visited.has(key)) continue;
+
+      // Allow passage through walls if there's a door
+      const hasDoor = cell.door && cell.door.edge === move.wall;
+      if (cell.walls[move.wall] && !hasDoor) continue;
+
+      visited.add(key);
+      queue.push([nx, ny, [...path, { x: nx, y: ny }]]);
+    }
+  }
+
+  return null; // No path found
+}
+
+function pathToDirections(path, startFacing) {
+  if (path.length < 2) return '';
+
+  const floor = mapData.data.currentFloor;
+  const directions = [];
+  let facing = startFacing;
+
+  for (let i = 0; i < path.length - 1; i++) {
+    const curr = path[i];
+    const next = path[i + 1];
+
+    // Determine which direction we need to move
+    let targetDir, edge;
+    if (next.y > curr.y) { targetDir = 'N'; edge = 'n'; }
+    else if (next.y < curr.y) { targetDir = 'S'; edge = 's'; }
+    else if (next.x > curr.x) { targetDir = 'E'; edge = 'e'; }
+    else { targetDir = 'W'; edge = 'w'; }
+
+    // Calculate turn needed
+    const facingOrder = ['N', 'E', 'S', 'W'];
+    const currentIdx = facingOrder.indexOf(facing);
+    const targetIdx = facingOrder.indexOf(targetDir);
+    const diff = (targetIdx - currentIdx + 4) % 4;
+
+    if (diff === 1) {
+      directions.push('R');
+    } else if (diff === 2) {
+      directions.push('R');
+      directions.push('R');
+    } else if (diff === 3) {
+      directions.push('L');
+    }
+
+    // Check if there's a door to open
+    const cell = mapData.getCell(floor, curr.x, curr.y);
+    if (cell.door && cell.door.edge === edge) {
+      directions.push('O');
+    }
+
+    // Move forward
+    directions.push('F');
+    facing = targetDir;
+  }
+
+  // Compress directions (e.g., F F F -> 3F)
+  return compressDirections(directions);
+}
+
+function compressDirections(dirs) {
+  if (dirs.length === 0) return '';
+
+  const result = [];
+  let current = dirs[0];
+  let count = 1;
+
+  for (let i = 1; i < dirs.length; i++) {
+    if (dirs[i] === current) {
+      count++;
+    } else {
+      result.push(count > 1 ? `${count}${current}` : current);
+      current = dirs[i];
+      count = 1;
+    }
+  }
+  result.push(count > 1 ? `${count}${current}` : current);
+
+  return result.join(' ');
+}
+
+function updatePathDisplay() {
+  const info = document.getElementById('map-info');
+  const pos = mapData.data.playerPosition;
+
+  if (pathDirections) {
+    info.textContent = `Path: ${pathDirections}`;
+  } else {
+    info.textContent = `Floor ${mapData.data.currentFloor} | Player: (${pos.x}, ${pos.y}) facing ${pos.facing}`;
+  }
+}
+
+function floodFillExplored(floor, startX, startY) {
+  const visited = new Set();
+  const queue = [[startX, startY]];
+
+  while (queue.length > 0) {
+    const [x, y] = queue.shift();
+    const key = `${x},${y}`;
+
+    if (visited.has(key)) continue;
+    if (x < 0 || x > 19 || y < 0 || y > 19) continue;
+
+    visited.add(key);
+
+    const cell = mapData.getCell(floor, x, y);
+
+    // Darkness acts as a wall - don't fill into or past it
+    if (cell.content === 'darkness') continue;
+
+    // Mark as explored (only if empty or already explored)
+    if (!cell.content || cell.content === 'explored') {
+      mapData.setContent(floor, x, y, 'explored');
+    }
+
+    // Check each direction - only spread if no wall
+    if (!cell.walls.n && y < 19) queue.push([x, y + 1]);
+    if (!cell.walls.s && y > 0) queue.push([x, y - 1]);
+    if (!cell.walls.e && x < 19) queue.push([x + 1, y]);
+    if (!cell.walls.w && x > 0) queue.push([x - 1, y]);
+  }
+}
+
 function initKeyboardShortcuts() {
   document.addEventListener('keydown', (e) => {
     // Don't handle shortcuts when typing in inputs
@@ -431,20 +710,37 @@ function initKeyboardShortcuts() {
       renderGrid();
     }
 
-    // W/A/S/D: toggle walls relative to player position (adjusted for view rotation)
+    // W/A/S/D: move player, Shift+W/A/S/D: toggle walls (adjusted for view rotation)
     if (['w', 'a', 's', 'd'].includes(e.key.toLowerCase())) {
       e.preventDefault();
-      // Map WASD to edges based on view rotation
-      const edgeMap = {
-        0:   { 'w': 'n', 'd': 'e', 's': 's', 'a': 'w' },
-        90:  { 'w': 'w', 'd': 'n', 's': 'e', 'a': 's' },
-        180: { 'w': 's', 'd': 'w', 's': 'n', 'a': 'e' },
-        270: { 'w': 'e', 'd': 's', 's': 'w', 'a': 'n' }
-      };
       const normalizedRotation = ((viewRotation % 360) + 360) % 360;
-      const edge = edgeMap[normalizedRotation][e.key.toLowerCase()];
-      const cell = mapData.getCell(floor, pos.x, pos.y);
-      mapData.setWall(floor, pos.x, pos.y, edge, !cell.walls[edge]);
+
+      // Map WASD to directions based on view rotation
+      const directionMap = {
+        0:   { 'w': 'N', 'd': 'E', 's': 'S', 'a': 'W' },
+        90:  { 'w': 'W', 'd': 'N', 's': 'E', 'a': 'S' },
+        180: { 'w': 'S', 'd': 'W', 's': 'N', 'a': 'E' },
+        270: { 'w': 'E', 'd': 'S', 's': 'W', 'a': 'N' }
+      };
+      const direction = directionMap[normalizedRotation][e.key.toLowerCase()];
+
+      if (e.shiftKey) {
+        // Shift+WASD: toggle walls
+        const edgeMap = { 'N': 'n', 'S': 's', 'E': 'e', 'W': 'w' };
+        const edge = edgeMap[direction];
+        const cell = mapData.getCell(floor, pos.x, pos.y);
+        mapData.setWall(floor, pos.x, pos.y, edge, !cell.walls[edge]);
+      } else {
+        // WASD: move player
+        let newX = pos.x, newY = pos.y;
+        switch (direction) {
+          case 'N': if (pos.y < 19) newY++; break;
+          case 'S': if (pos.y > 0) newY--; break;
+          case 'W': if (pos.x > 0) newX--; break;
+          case 'E': if (pos.x < 19) newX++; break;
+        }
+        mapData.setPlayerPosition(newX, newY, direction);
+      }
       renderGrid();
     }
 
@@ -456,15 +752,6 @@ function initKeyboardShortcuts() {
       renderGrid();
     }
 
-    // E: toggle erase mode
-    if (e.key.toLowerCase() === 'e' && !e.ctrlKey && !e.metaKey) {
-      const eraseBtn = document.querySelector('.tool-btn[data-tool="erase"]');
-      if (eraseBtn) {
-        document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
-        eraseBtn.classList.add('active');
-        currentTool = 'erase';
-      }
-    }
 
     // R: rotate player facing clockwise
     // Shift+R: rotate map view 90 degrees clockwise
@@ -478,13 +765,6 @@ function initKeyboardShortcuts() {
         mapData.setPlayerPosition(pos.x, pos.y, nextDir);
         renderGrid();
       }
-    }
-
-    // I: mark cell as inaccessible
-    if (e.key.toLowerCase() === 'i' && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
-      const cell = mapData.getCell(floor, pos.x, pos.y);
-      mapData.setContent(floor, pos.x, pos.y, cell.content === 'inaccessible' ? null : 'inaccessible');
-      renderGrid();
     }
 
     // Z: undo, Shift+Z: redo
@@ -503,14 +783,18 @@ function initKeyboardShortcuts() {
       }
     }
 
-    // Escape: back to wall tool
-    if (e.key === 'Escape') {
-      const wallBtn = document.querySelector('.tool-btn[data-tool="wall"]');
-      if (wallBtn) {
-        document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
-        wallBtn.classList.add('active');
-        currentTool = 'wall';
+    // G: toggle explored/gray cell at player position
+    // Shift+G: flood-fill explored within walled perimeter
+    if (e.key.toLowerCase() === 'g' && !e.ctrlKey && !e.metaKey) {
+      if (e.shiftKey) {
+        // Flood-fill from player position, bounded by walls
+        floodFillExplored(floor, pos.x, pos.y);
+      } else {
+        const cell = mapData.getCell(floor, pos.x, pos.y);
+        mapData.setContent(floor, pos.x, pos.y, cell.content === 'explored' ? null : 'explored');
       }
+      renderGrid();
     }
+
   });
 }
