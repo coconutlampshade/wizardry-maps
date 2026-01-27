@@ -309,20 +309,20 @@ function handleCenterClick(e, x, y) {
     return;
   }
 
-  // Always move player to clicked cell
-  if (pos.x !== x || pos.y !== y) {
-    mapData.setPlayerPosition(x, y, pos.facing);
+  // If clicking on player's current cell, rotate 90 degrees
+  if (pos.x === x && pos.y === y) {
+    const dirs = ['N', 'E', 'S', 'W'];
+    const nextDir = dirs[(dirs.indexOf(pos.facing) + 1) % 4];
+    mapData.setPlayerPosition(x, y, nextDir);
+    renderGrid();
+    return;
   }
 
+  // Move player to clicked cell
+  mapData.setPlayerPosition(x, y, pos.facing);
+
   // Additional actions based on tool
-  if (currentTool === 'player') {
-    // Rotate facing if clicking same cell
-    if (pos.x === x && pos.y === y) {
-      const dirs = ['N', 'E', 'S', 'W'];
-      const nextDir = dirs[(dirs.indexOf(pos.facing) + 1) % 4];
-      mapData.setPlayerPosition(x, y, nextDir);
-    }
-  } else if (currentTool === 'note') {
+  if (currentTool === 'note') {
     showNoteModal(x, y);
   } else if (currentTool === 'teleporter') {
     showTeleporterModal(x, y);
