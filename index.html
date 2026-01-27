@@ -9,37 +9,71 @@
 <body>
   <header>
     <h1>Wizardry Map Maker</h1>
-    <div class="header-controls">
-      <div class="floor-selector">
-        <label for="floor-select">Floor:</label>
-        <select id="floor-select">
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
-          <option value="5">5</option>
-          <option value="6">6</option>
-          <option value="7">7</option>
-          <option value="8">8</option>
-          <option value="9">9</option>
-          <option value="10">10</option>
-        </select>
+    <div class="floor-tabs" id="floor-tabs">
+      <button class="floor-tab active" data-floor="1">1</button>
+      <button class="floor-tab" data-floor="2">2</button>
+      <button class="floor-tab" data-floor="3">3</button>
+      <button class="floor-tab" data-floor="4">4</button>
+      <button class="floor-tab" data-floor="5">5</button>
+      <button class="floor-tab" data-floor="6">6</button>
+      <button class="floor-tab" data-floor="7">7</button>
+      <button class="floor-tab" data-floor="8">8</button>
+      <button class="floor-tab" data-floor="9">9</button>
+      <button class="floor-tab" data-floor="10">10</button>
+    </div>
+    <div class="header-buttons">
+      <span id="save-indicator" class="save-indicator">Saved</span>
+      <button id="save-btn" class="btn-primary" title="Download backup">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+          <polyline points="17 21 17 13 7 13 7 21"/>
+          <polyline points="7 3 7 8 15 8"/>
+        </svg>
+        Save
+      </button>
+      <div class="btn-group">
+        <button id="import-btn" title="Import JSON">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+        </button>
+        <button id="export-btn" title="Export JSON">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="17 8 12 3 7 8"/>
+            <line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+        </button>
       </div>
-      <div class="header-buttons">
-        <span id="save-indicator" class="save-indicator">Saved</span>
-        <button id="save-btn">Save</button>
-        <button id="theme-btn" title="Toggle light/dark mode">Light</button>
-        <button id="export-btn">Export</button>
-        <button id="import-btn">Import</button>
-        <button id="guide-btn">Guide</button>
-      </div>
+      <button id="theme-btn" title="Toggle light/dark mode">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="5"/>
+          <line x1="12" y1="1" x2="12" y2="3"/>
+          <line x1="12" y1="21" x2="12" y2="23"/>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+          <line x1="1" y1="12" x2="3" y2="12"/>
+          <line x1="21" y1="12" x2="23" y2="12"/>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+        </svg>
+      </button>
+      <button id="guide-btn" title="User guide">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+      </button>
     </div>
   </header>
 
   <main>
     <aside class="toolbar">
       <div class="tool-section">
-        <h3>Features</h3>
+        <h3>Walls & Doors</h3>
         <div class="tool-group">
           <button class="tool-btn" data-tool="wall">
             <span class="swatch swatch-wall"></span> Wall
@@ -48,37 +82,49 @@
             <span class="swatch swatch-door"></span> Door
           </button>
           <button class="tool-btn" data-tool="door" data-door-type="locked">
-            <span class="swatch swatch-door-locked"></span> Locked Door
+            <span class="swatch swatch-door-locked"></span> Locked
           </button>
           <button class="tool-btn" data-tool="door" data-door-type="secret">
-            <span class="swatch swatch-door-secret"></span> Secret Door
+            <span class="swatch swatch-door-secret"></span> Secret
           </button>
           <button class="tool-btn" data-tool="door" data-door-type="one-way">
             <span class="swatch swatch-door-oneway"></span> One-Way
           </button>
           <button class="tool-btn" data-tool="door" data-door-type="secret-one-way">
-            <span class="swatch swatch-door-secret-oneway"></span> Secret One-Way
+            <span class="swatch swatch-door-secret-oneway"></span> Secret 1-Way
           </button>
+        </div>
+      </div>
+
+      <div class="tool-section">
+        <h3>Navigation</h3>
+        <div class="tool-group">
           <button class="tool-btn" data-tool="content" data-content="stairs-up">
-            <span class="swatch" style="background: var(--stairs-up); font-weight: bold;">U</span> Stairs Up
+            <span class="swatch swatch-icon" style="background: var(--stairs-up)">U</span> Stairs Up
           </button>
           <button class="tool-btn" data-tool="content" data-content="stairs-down">
-            <span class="swatch" style="background: var(--stairs-down); font-weight: bold;">D</span> Stairs Down
+            <span class="swatch swatch-icon" style="background: var(--stairs-down)">D</span> Stairs Down
+          </button>
+          <button class="tool-btn" data-tool="content" data-content="elevator">
+            <span class="swatch swatch-icon" style="background: var(--elevator); color: #000;">E</span> Elevator
           </button>
           <button class="tool-btn" data-tool="door" data-door-type="teleporter">
             <span class="swatch swatch-teleporter"></span> Teleporter
           </button>
-          <button class="tool-btn" data-tool="content" data-content="spinner">
-            <span class="swatch swatch-icon" style="background: var(--spinner)">@</span> Spinner
-          </button>
+        </div>
+      </div>
+
+      <div class="tool-section">
+        <h3>Hazards</h3>
+        <div class="tool-group">
           <button class="tool-btn" data-tool="content" data-content="pit">
             <span class="swatch swatch-icon" style="background: var(--pit)">O</span> Pit
           </button>
           <button class="tool-btn" data-tool="content" data-content="chute">
             <span class="swatch swatch-icon" style="background: var(--chute)">V</span> Chute
           </button>
-          <button class="tool-btn" data-tool="content" data-content="elevator">
-            <span class="swatch swatch-icon" style="background: var(--elevator); color: #000;">E</span> Elevator
+          <button class="tool-btn" data-tool="content" data-content="spinner">
+            <span class="swatch swatch-icon" style="background: var(--spinner)">@</span> Spinner
           </button>
           <button class="tool-btn" data-tool="content" data-content="darkness">
             <span class="swatch swatch-icon" style="background: var(--darkness)">?</span> Darkness
@@ -86,16 +132,21 @@
           <button class="tool-btn" data-tool="content" data-content="antimagic">
             <span class="swatch swatch-icon" style="background: var(--antimagic)">X</span> Anti-Magic
           </button>
-          <button class="tool-btn" data-tool="content" data-content="inaccessible">
-            <span class="swatch" style="background: #444"></span> Inaccessible
-          </button>
-          <button class="tool-btn" data-tool="note">
-            <span class="swatch swatch-note"></span> Note
-          </button>
         </div>
       </div>
 
-          </aside>
+      <div class="tool-section">
+        <h3>Markers</h3>
+        <div class="tool-group">
+          <button class="tool-btn" data-tool="note">
+            <span class="swatch swatch-note"></span> Note
+          </button>
+          <button class="tool-btn" data-tool="content" data-content="inaccessible">
+            <span class="swatch" style="background: #444"></span> Inaccessible
+          </button>
+        </div>
+      </div>
+    </aside>
 
     <section class="map-container">
       <div class="map-header">

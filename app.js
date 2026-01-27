@@ -53,15 +53,33 @@ function initThemeToggle() {
   const btn = document.getElementById('theme-btn');
   const savedTheme = localStorage.getItem('wizardry-maps-theme');
 
+  const sunIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <circle cx="12" cy="12" r="5"/>
+    <line x1="12" y1="1" x2="12" y2="3"/>
+    <line x1="12" y1="21" x2="12" y2="23"/>
+    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+    <line x1="1" y1="12" x2="3" y2="12"/>
+    <line x1="21" y1="12" x2="23" y2="12"/>
+    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+  </svg>`;
+
+  const moonIcon = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+  </svg>`;
+
   if (savedTheme === 'light') {
     document.body.classList.add('light-mode');
-    btn.textContent = 'Dark';
+    btn.innerHTML = moonIcon;
+    btn.title = 'Switch to dark mode';
   }
 
   btn.addEventListener('click', () => {
     document.body.classList.toggle('light-mode');
     const isLight = document.body.classList.contains('light-mode');
-    btn.textContent = isLight ? 'Dark' : 'Light';
+    btn.innerHTML = isLight ? moonIcon : sunIcon;
+    btn.title = isLight ? 'Switch to dark mode' : 'Switch to light mode';
     localStorage.setItem('wizardry-maps-theme', isLight ? 'light' : 'dark');
   });
 }
@@ -102,13 +120,51 @@ function initGuideToggle() {
 }
 
 function initFloorSelector() {
-  const selector = document.getElementById('floor-select');
-  selector.value = mapData.data.currentFloor;
+  const tabs = document.querySelectorAll('.floor-tab');
 
-  selector.addEventListener('change', (e) => {
-    mapData.setCurrentFloor(parseInt(e.target.value));
-    renderGrid();
+  // Set initial active tab
+  updateFloorTabs();
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const floor = parseInt(tab.dataset.floor);
+      mapData.setCurrentFloor(floor);
+      updateFloorTabs();
+      renderGrid();
+    });
   });
+}
+
+function updateFloorTabs() {
+  const currentFloor = mapData.data.currentFloor;
+  const tabs = document.querySelectorAll('.floor-tab');
+
+  tabs.forEach(tab => {
+    const floor = parseInt(tab.dataset.floor);
+    tab.classList.toggle('active', floor === currentFloor);
+
+    // Check if floor has content
+    const hasContent = floorHasContent(floor);
+    tab.classList.toggle('has-content', hasContent && floor !== currentFloor);
+  });
+}
+
+function floorHasContent(floor) {
+  const floorData = mapData.data.floors[floor];
+  if (!floorData) return false;
+
+  for (let y = 0; y < 20; y++) {
+    for (let x = 0; x < 20; x++) {
+      const cell = floorData[y]?.[x];
+      if (cell) {
+        if (cell.walls?.n || cell.walls?.s || cell.walls?.e || cell.walls?.w) return true;
+        if (cell.door) return true;
+        if (cell.content) return true;
+        if (cell.note) return true;
+      }
+    }
+  }
+  return false;
 }
 
 function initToolbar() {
@@ -353,6 +409,7 @@ function renderGrid() {
 
   updateMapInfo();
   updatePathDisplay();
+  updateFloorTabs();
 }
 
 function updateMapInfo() {
@@ -394,7 +451,7 @@ function initModals() {
     if (data && mapData.importJSON(data)) {
       importModal.classList.remove('active');
       importTextarea.value = '';
-      document.getElementById('floor-select').value = mapData.data.currentFloor;
+      updateFloorTabs();
       renderGrid();
     } else {
       alert('Invalid map data format');
@@ -748,7 +805,7 @@ function initKeyboardShortcuts() {
     if (e.key >= '0' && e.key <= '9') {
       const floorNum = e.key === '0' ? 10 : parseInt(e.key);
       mapData.setCurrentFloor(floorNum);
-      document.getElementById('floor-select').value = floorNum;
+      updateFloorTabs();
       renderGrid();
     }
 
@@ -772,12 +829,12 @@ function initKeyboardShortcuts() {
       e.preventDefault();
       if (e.shiftKey) {
         if (mapData.redo()) {
-          document.getElementById('floor-select').value = mapData.data.currentFloor;
+          updateFloorTabs();
           renderGrid();
         }
       } else {
         if (mapData.undo()) {
-          document.getElementById('floor-select').value = mapData.data.currentFloor;
+          updateFloorTabs();
           renderGrid();
         }
       }
