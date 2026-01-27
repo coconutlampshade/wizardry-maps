@@ -569,6 +569,8 @@ function findPath(floor, startX, startY, endX, endY) {
   const visited = new Set();
   visited.add(`${startX},${startY}`);
 
+  const oppositeEdge = { n: 's', s: 'n', e: 'w', w: 'e' };
+
   while (queue.length > 0) {
     const [x, y, path] = queue.shift();
 
@@ -594,9 +596,21 @@ function findPath(floor, startX, startY, endX, endY) {
       if (nx < 0 || nx > 19 || ny < 0 || ny > 19) continue;
       if (visited.has(key)) continue;
 
-      // Allow passage through walls if there's a door
-      const hasDoor = cell.door && cell.door.edge === move.wall;
-      if (cell.walls[move.wall] && !hasDoor) continue;
+      const neighborCell = mapData.getCell(floor, nx, ny);
+      const oppEdge = oppositeEdge[move.wall];
+
+      // Check for doors on either side - doors allow passage
+      const doorHere = cell.door && cell.door.edge === move.wall;
+      const doorThere = neighborCell.door && neighborCell.door.edge === oppEdge;
+      const hasDoor = doorHere || doorThere;
+
+      // Check for walls on either side
+      const wallHere = cell.walls[move.wall];
+      const wallThere = neighborCell.walls[oppEdge];
+      const hasWall = wallHere || wallThere;
+
+      // Blocked only if there's a wall and no door
+      if (hasWall && !hasDoor) continue;
 
       visited.add(key);
       queue.push([nx, ny, [...path, { x: nx, y: ny }]]);
