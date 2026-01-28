@@ -327,7 +327,7 @@ main {
   background: #ff0000;
 }
 
-/* Locked door - same as door with border */
+/* Locked door - yellow/gold to indicate lock */
 .swatch-door-locked {
   background: var(--bg-dark);
   border: 1px solid var(--grid-line);
@@ -344,13 +344,12 @@ main {
 .swatch-door-locked::after {
   content: '';
   position: absolute;
-  top: -1px;
+  top: 0;
   left: 50%;
   transform: translateX(-50%);
   width: 10px;
-  height: 6px;
-  background: #ff0000;
-  border: 2px solid #fff;
+  height: 4px;
+  background: #ffd700;
 }
 
 /* Secret door - gray segment */
@@ -636,7 +635,7 @@ main {
 .door-w { left: -2px; }
 
 .door.normal { background: #ff0000; }
-.door.locked { background: #ff0000; }
+.door.locked { background: #ffd700; }
 .door.secret { background: #888; }
 .door.one-way { background: #ff0000; }
 .door.secret-one-way { background: #888; }
