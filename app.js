@@ -301,6 +301,16 @@ function handleCenterClick(e, x, y) {
     return;
   }
 
+  // Click on path to clear it
+  if (currentPath && currentPath.some(p => p.x === x && p.y === y)) {
+    pathStart = null;
+    currentPath = null;
+    pathDirections = null;
+    renderGrid();
+    updatePathDisplay();
+    return;
+  }
+
   // Shift+click to delete content and note
   if (e.shiftKey) {
     mapData.setContent(floor, x, y, null);
