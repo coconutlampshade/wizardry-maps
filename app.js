@@ -728,17 +728,19 @@ function pathToDirections(path) {
   const floor = mapData.data.currentFloor;
   const directions = [];
   const oppositeEdge = { n: 's', s: 'n', e: 'w', w: 'e' };
+  const facingOrder = ['N', 'E', 'S', 'W'];
+  let facing = null;
 
   for (let i = 0; i < path.length - 1; i++) {
     const curr = path[i];
     const next = path[i + 1];
 
     // Determine which cardinal direction we're moving
-    let dir, edge;
-    if (next.y > curr.y) { dir = 'N'; edge = 'n'; }
-    else if (next.y < curr.y) { dir = 'S'; edge = 's'; }
-    else if (next.x > curr.x) { dir = 'E'; edge = 'e'; }
-    else { dir = 'W'; edge = 'w'; }
+    let moveDir, edge;
+    if (next.y > curr.y) { moveDir = 'N'; edge = 'n'; }
+    else if (next.y < curr.y) { moveDir = 'S'; edge = 's'; }
+    else if (next.x > curr.x) { moveDir = 'E'; edge = 'e'; }
+    else { moveDir = 'W'; edge = 'w'; }
 
     // Check if there's a door to open (on either side of the edge)
     const cell = mapData.getCell(floor, curr.x, curr.y);
@@ -746,11 +748,29 @@ function pathToDirections(path) {
     const hasDoor = (cell.door && cell.door.edge === edge) ||
                     (nextCell.door && nextCell.door.edge === oppositeEdge[edge]);
 
+    // Calculate relative direction
+    let relativeDir;
+    if (facing === null) {
+      // First move is always forward
+      relativeDir = 'F';
+    } else {
+      const currentIdx = facingOrder.indexOf(facing);
+      const targetIdx = facingOrder.indexOf(moveDir);
+      const diff = (targetIdx - currentIdx + 4) % 4;
+
+      if (diff === 0) relativeDir = 'F';
+      else if (diff === 1) relativeDir = 'R';
+      else if (diff === 2) relativeDir = 'B'; // 180 turn (back)
+      else relativeDir = 'L';
+    }
+
+    facing = moveDir;
+
     // Add direction with 'o' suffix if opening a door
-    directions.push(hasDoor ? dir + 'o' : dir);
+    directions.push(hasDoor ? relativeDir + 'o' : relativeDir);
   }
 
-  // Compress directions (e.g., N N N -> 3N)
+  // Compress directions (e.g., F F F -> 3F)
   return compressDirections(directions);
 }
 
