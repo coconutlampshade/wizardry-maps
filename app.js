@@ -656,7 +656,7 @@ function handlePathClick(x, y) {
   if (path && path.length > 1) {
     currentPath = path;
     // Calculate directions based on player's current facing
-    pathDirections = pathToDirections(path, mapData.data.playerPosition.facing);
+    pathDirections = pathToDirections(path);
   } else {
     // No path found, reset
     pathStart = null;
@@ -722,57 +722,35 @@ function findPath(floor, startX, startY, endX, endY) {
   return null; // No path found
 }
 
-function pathToDirections(path, startFacing) {
+function pathToDirections(path) {
   if (path.length < 2) return '';
 
   const floor = mapData.data.currentFloor;
   const directions = [];
-  let facing = startFacing;
+  const oppositeEdge = { n: 's', s: 'n', e: 'w', w: 'e' };
 
   for (let i = 0; i < path.length - 1; i++) {
     const curr = path[i];
     const next = path[i + 1];
 
-    // Determine which direction we need to move
-    let targetDir, edge;
-    if (next.y > curr.y) { targetDir = 'N'; edge = 'n'; }
-    else if (next.y < curr.y) { targetDir = 'S'; edge = 's'; }
-    else if (next.x > curr.x) { targetDir = 'E'; edge = 'e'; }
-    else { targetDir = 'W'; edge = 'w'; }
-
-    // Calculate turn needed
-    const facingOrder = ['N', 'E', 'S', 'W'];
-    const currentIdx = facingOrder.indexOf(facing);
-    const targetIdx = facingOrder.indexOf(targetDir);
-    const diff = (targetIdx - currentIdx + 4) % 4;
-
-    if (diff === 1) {
-      directions.push('R');
-    } else if (diff === 2) {
-      directions.push('R');
-      directions.push('R');
-    } else if (diff === 3) {
-      directions.push('L');
-    }
+    // Determine which cardinal direction we're moving
+    let dir, edge;
+    if (next.y > curr.y) { dir = 'N'; edge = 'n'; }
+    else if (next.y < curr.y) { dir = 'S'; edge = 's'; }
+    else if (next.x > curr.x) { dir = 'E'; edge = 'e'; }
+    else { dir = 'W'; edge = 'w'; }
 
     // Check if there's a door to open (on either side of the edge)
     const cell = mapData.getCell(floor, curr.x, curr.y);
     const nextCell = mapData.getCell(floor, next.x, next.y);
-    const oppositeEdge = { n: 's', s: 'n', e: 'w', w: 'e' };
     const hasDoor = (cell.door && cell.door.edge === edge) ||
                     (nextCell.door && nextCell.door.edge === oppositeEdge[edge]);
 
-    if (hasDoor) {
-      // Opening a door moves you through it
-      directions.push('O');
-    } else {
-      // Move forward (no door)
-      directions.push('F');
-    }
-    facing = targetDir;
+    // Add direction with 'o' suffix if opening a door
+    directions.push(hasDoor ? dir + 'o' : dir);
   }
 
-  // Compress directions (e.g., F F F -> 3F)
+  // Compress directions (e.g., N N N -> 3N)
   return compressDirections(directions);
 }
 
