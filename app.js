@@ -755,14 +755,20 @@ function pathToDirections(path, startFacing) {
       directions.push('L');
     }
 
-    // Check if there's a door to open
+    // Check if there's a door to open (on either side of the edge)
     const cell = mapData.getCell(floor, curr.x, curr.y);
-    if (cell.door && cell.door.edge === edge) {
-      directions.push('O');
-    }
+    const nextCell = mapData.getCell(floor, next.x, next.y);
+    const oppositeEdge = { n: 's', s: 'n', e: 'w', w: 'e' };
+    const hasDoor = (cell.door && cell.door.edge === edge) ||
+                    (nextCell.door && nextCell.door.edge === oppositeEdge[edge]);
 
-    // Move forward
-    directions.push('F');
+    if (hasDoor) {
+      // Opening a door moves you through it
+      directions.push('O');
+    } else {
+      // Move forward (no door)
+      directions.push('F');
+    }
     facing = targetDir;
   }
 
